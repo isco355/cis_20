@@ -5,17 +5,10 @@
 main:
         push {lr}
 
-        ldr r0, =prompt
-        bl printf                  
-        ldr r0, =format
-        ldr r1, =num
-        bl scanf                   
+         LDR r4, =arr
+        # bl summation_recursive     // call recursive function
 
-        ldr r0, =num
-        ldr r0, [r0]               
-        MOV r5, r0              
-        bl summation_recursive     // call recursive function
-
+        LDR r0, [r4, r6, LSL #1]
         mov r1, r0                 
         ldr r0, =output
         bl printf                  
@@ -33,18 +26,21 @@ summation_recursive:
         push {r0}                  // save (n-1)
         bl summation_recursive     // recursive call: sum(n-1)
         pop {r1}                   // restore (n-1)
-        add r0, r0, r5             // result = sum(n-1) + n
+        add r0, r0, r1             // result = sum(n-1) + n
 
         pop {lr}
         bx lr
 
 base_case:
-        mov r0, r5                 // base case: n 
+        LDR r0, [r4, r6, LSL #0]
         pop {lr}
         bx lr
 .data
-    prompt: .asciz "Enter a number: "
+    # prompt: .asciz "Enter a number: "
     format: .asciz "%d"
     output: .asciz "result %d\n"
     num: .word 0
+    arr:    .word 5, 10, 15, 20
+    arraySize:  .word 4                     @ Store the size of the array
+
 

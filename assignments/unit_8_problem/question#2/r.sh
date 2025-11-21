@@ -1,5 +1,5 @@
 
-rm *.o
+# rm *.o
 clear
 make && clear && ./main
-rm *.o
+# rm *.o

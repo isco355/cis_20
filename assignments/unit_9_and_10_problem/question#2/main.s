@@ -1,82 +1,49 @@
 
 .text
-.global main 
-requestInput:
-  push {lr}
-  BL  printf   
-  LDR r0, =input
-  LDR r1, =num
-  BL scanf 
-  LDR r1, =num
-  LDR r1,[r1,#0]
-  pop {pc}
-  bx lr
+.global main
 
-#
-printMaxValue:
-    push {lr}
-    LDR r0,=max_msg
-    MOV r1,r4
-    BL printf
-    pop {pc}
-    bx lr
+main:
+        push {lr}
 
-printMinValue:
-    push {lr}
-    LDR r0,=min_msg
-    MOV r1,r5
-    BL printf
-    pop {pc}
-    bx lr
-    B end
+        ldr r0, =prompt
+        bl printf                  
+        ldr r0, =format
+        ldr r1, =num
+        bl scanf                   
+
+        ldr r0, =num
+        ldr r0, [r0]               
+        bl factorial     // call recursive function
+
+        mov r1, r0                 
+        ldr r0, =output
+        bl printf                  
+
+        pop {lr}
+        bx lr
 
 
-setValues:
-    MOV r0,r4
-    MOV r4,r5
-    MOV r5,r0
-    B continue
+factorial:
+        push {lr}
+        cmp r0, #1                 // if n == 0
+        beq base_case
 
-sortValue:
-    push {lr}
-    CMP r4,r5
-    BLT setValues 
-    pop {pc}
-    bx lr
-main: 
-  # Save return to os on stack 
-    SUB sp, sp, #4
-    STR lr, [sp, #0] 
-    
+        push {r0}                  // save (n-1)
+        sub r0, r0, #1             // prepare argument for next call
+        bl factorial     // recursive call: factorial(n-1)
+        pop {r1}                   // restore (n-1)
+        mul r0, r0, r1             // result = factorial(n-1) * n
 
-    LDR r0,=message_prompt
-    BL requestInput
-    MOV r4,r1
+        pop {lr}
+        bx lr
 
-    LDR r0,=message_prompt
-    BL requestInput
-    MOV r5,r1
-    BL sortValue
-continue:
-    LDR r0,=code_prompt
-    BL requestInput
-
-    CMP r1,#1
-    BEQ printMaxValue
-    BL printMinValue
-
-end:
-    LDR lr,[sp,#0]
-    ADD sp,sp, #4
-    MOV pc,lr
-
-.data   
-    input: .asciz "%d"
-    num: .word 0 
-    message_prompt: .asciz "Enter a value: \n"
-    code_prompt: .asciz "enter 1(to display highest value) or 2(to smallest value): \n"
-    max_msg: .asciz "Max value: %d \n"
-    min_msg: .asciz "Min value: %d \n"
-
-
+base_case:
+        mov r0, #1                 // base case: 1 
+        pop {lr}
+        bx lr
+.data
+    prompt: .asciz "Enter a number: "
+    format: .asciz "%d"
+    output: .asciz "factorial result: %d\n"
+    num: .word 0
 
